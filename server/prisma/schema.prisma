@@ -1,0 +1,229 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  BASE_COMMANDER
+  LOGISTICS_OFFICER
+}
+
+enum AssetStatus {
+  AVAILABLE
+  ASSIGNED
+  IN_TRANSIT
+  MAINTENANCE
+  EXPENDED
+  DECOMMISSIONED
+}
+
+enum TransferStatus {
+  PENDING
+  APPROVED
+  IN_TRANSIT
+  COMPLETED
+  CANCELLED
+}
+
+enum EquipmentType {
+  VEHICLE
+  WEAPON
+  AMMUNITION
+  COMMUNICATION
+  MEDICAL
+  SUPPLY
+  OTHER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      Role
+  baseId    String?
+  base      Base?    @relation(fields: [baseId], references: [id])
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  createdPurchases    Purchase[]    @relation("PurchaseCreatedBy")
+  createdTransfers    Transfer[]    @relation("TransferCreatedBy")
+  approvedTransfers   Transfer[]    @relation("TransferApprovedBy")
+  createdAssignments  Assignment[]  @relation("AssignmentCreatedBy")
+  assignments         Assignment[]  @relation("AssignmentAssignedTo")
+  createdExpenditures Expenditure[] @relation("ExpenditureCreatedBy")
+  auditLogs           AuditLog[]
+
+  @@map("users")
+}
+
+model Base {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  code        String  @unique
+  location    String
+  description String?
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users               User[]
+  assets              Asset[]
+  purchases           Purchase[]
+  transfersFrom       Transfer[] @relation("TransferFromBase")
+  transfersTo         Transfer[] @relation("TransferToBase")
+  assignments         Assignment[]
+  expenditures        Expenditure[]
+
+  @@map("bases")
+}
+
+model Asset {
+  id             String        @id @default(cuid())
+  serialNumber   String        @unique
+  name           String
+  description    String?
+  equipmentType  EquipmentType
+  status         AssetStatus   @default(AVAILABLE)
+  baseId         String
+  base           Base          @relation(fields: [baseId], references: [id])
+  purchaseId     String?
+  purchase       Purchase?     @relation(fields: [purchaseId], references: [id])
+  value          Decimal?
+  acquisitionDate DateTime?
+  warrantyExpiry DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Relations
+  transferItems   TransferItem[]
+  assignments     Assignment[]
+  expenditures    Expenditure[]
+
+  @@map("assets")
+}
+
+model Purchase {
+  id            String        @id @default(cuid())
+  purchaseOrder String        @unique
+  vendor        String
+  totalAmount   Decimal
+  purchaseDate  DateTime
+  description   String?
+  baseId        String
+  base          Base          @relation(fields: [baseId], references: [id])
+  createdById   String
+  createdBy     User          @relation("PurchaseCreatedBy", fields: [createdById], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  assets        Asset[]
+
+  @@map("purchases")
+}
+
+model Transfer {
+  id            String         @id @default(cuid())
+  transferCode  String         @unique
+  fromBaseId    String
+  fromBase      Base           @relation("TransferFromBase", fields: [fromBaseId], references: [id])
+  toBaseId      String
+  toBase        Base           @relation("TransferToBase", fields: [toBaseId], references: [id])
+  status        TransferStatus @default(PENDING)
+  reason        String
+  notes         String?
+  createdById   String
+  createdBy     User           @relation("TransferCreatedBy", fields: [createdById], references: [id])
+  approvedById  String?
+  approvedBy    User?          @relation("TransferApprovedBy", fields: [approvedById], references: [id])
+  approvedAt    DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  transferItems TransferItem[]
+
+  @@map("transfers")
+}
+
+model TransferItem {
+  id         String @id @default(cuid())
+  transferId String
+  transfer   Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  assetId    String
+  asset      Asset  @relation(fields: [assetId], references: [id])
+  quantity   Int    @default(1)
+  notes      String?
+
+  @@unique([transferId, assetId])
+  @@map("transfer_items")
+}
+
+model Assignment {
+  id           String    @id @default(cuid())
+  assetId      String
+  asset        Asset     @relation(fields: [assetId], references: [id])
+  assignedToId String
+  assignedTo   User      @relation("AssignmentAssignedTo", fields: [assignedToId], references: [id])
+  baseId       String
+  base         Base      @relation(fields: [baseId], references: [id])
+  assignedAt   DateTime  @default(now())
+  returnedAt   DateTime?
+  purpose      String
+  notes        String?
+  createdById  String
+  createdBy    User      @relation("AssignmentCreatedBy", fields: [createdById], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("assignments")
+}
+
+model Expenditure {
+  id          String        @id @default(cuid())
+  assetId     String
+  asset       Asset         @relation(fields: [assetId], references: [id])
+  baseId      String
+  base        Base          @relation(fields: [baseId], references: [id])
+  quantity    Int           @default(1)
+  reason      String
+  description String?
+  expendedAt  DateTime      @default(now())
+  createdById String
+  createdBy   User          @relation("ExpenditureCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("expenditures")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  oldValues Json?
+  newValues Json?
+  ipAddress String?
+  userAgent String?
+  timestamp DateTime @default(now())
+
+  @@map("audit_logs")
+}

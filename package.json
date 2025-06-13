@@ -1,0 +1,29 @@
+{
+  "name": "military-asset-management",
+  "version": "1.0.0",
+  "description": "Military Asset Management System for tracking and managing critical assets across multiple bases",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "cd server && npm run dev",
+    "client:dev": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "db:migrate": "cd server && npx prisma migrate dev",
+    "db:seed": "cd server && npx prisma db seed",
+    "db:studio": "cd server && npx prisma studio"
+  },
+  "keywords": [
+    "military",
+    "asset-management",
+    "logistics",
+    "inventory",
+    "rbac"
+  ],
+  "author": "Military Asset Management Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
