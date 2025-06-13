@@ -1,15 +1,43 @@
-# Military Asset Management System
+# 🎖️ Military Asset Management System
 
-A comprehensive system for managing military assets across multiple bases with role-based access control, real-time tracking, and audit capabilities.
+A comprehensive, full-stack web application for tracking and managing military assets, equipment, and resources across multiple military bases. Built with modern technologies and military-grade security standards.
 
-## Features
+![Military Asset Management](https://img.shields.io/badge/Military-Asset%20Management-green)
+![Node.js](https://img.shields.io/badge/Node.js-18+-green)
+![React](https://img.shields.io/badge/React-18+-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17+-blue)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
-- **Dashboard**: Real-time metrics for opening/closing balances, net movements, assignments, and expenditures
-- **Asset Tracking**: Complete lifecycle management from purchase to expenditure
-- **Inter-Base Transfers**: Secure asset movement between military installations
-- **Role-Based Access Control**: Admin, Base Commander, and Logistics Officer roles
-- **Audit Trail**: Complete logging of all transactions for accountability
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
+## 🚀 Features
+
+### 🎯 Core Functionality
+- **Asset Management** - Track vehicles, weapons, ammunition, communication equipment, and other military assets
+- **Multi-Base Operations** - Manage assets across multiple military installations
+- **Purchase Order Management** - Record and track procurement activities with vendor information
+- **Transfer System** - Move assets between bases with multi-level approval workflows
+- **Assignment Tracking** - Assign assets to personnel with purpose, duration, and return tracking
+- **Expenditure Management** - Track asset consumption, usage, and ammunition expenditure
+
+### 🔐 Security & Compliance
+- **Role-Based Access Control (RBAC)** - Admin, Base Commander, and Logistics Officer roles
+- **Comprehensive Audit Logging** - Track all system activities for compliance and security
+- **JWT Authentication** - Secure token-based authentication with configurable expiration
+- **Input Validation** - Comprehensive data validation and sanitization using Joi schemas
+- **Rate Limiting** - API protection against abuse and DDoS attacks
+- **Security Headers** - Helmet.js for enhanced security
+
+### 📊 Analytics & Reporting
+- **Real-time Dashboard** - Live metrics, KPIs, and activity monitoring
+- **Asset Distribution** - Visual representation of assets across bases
+- **Transfer Analytics** - Track asset movements and approval workflows
+- **Expenditure Reports** - Monitor spending and resource consumption
+- **Audit Trail** - Complete transaction history for compliance
+
+### 💻 User Experience
+- **Responsive Design** - Optimized for desktop, tablet, and mobile devices
+- **Intuitive Interface** - User-friendly design tailored for military personnel
+- **Fast Performance** - Optimized queries and efficient data loading
+- **Progressive Web App** - Offline capability for field operations
 
 ## Technology Stack
 
